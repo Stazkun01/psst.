@@ -19,6 +19,10 @@ Anonymous messages for your Instagram and Snapchat stories. Like NGL, but **free
 - **Push notifications** for new messages (on iPhone, add psst to your home screen first)
 - No fake messages, no paywall, no tracking or analytics
 
+## Guides
+
+Shareable step-by-step pictures for adding psst to your home screen: [iPhone](guides/psst-home-screen-iphone.png) · [Android](guides/psst-home-screen-android.png)
+
 ## How it works
 
 - **Frontend:** one static `index.html` (vanilla JS, no build step), hosted on Vercel. `vercel.json` routes every `/username` to it. `api/geo.js` gives the sender's approximate city for hints, `sw.js` shows notifications.

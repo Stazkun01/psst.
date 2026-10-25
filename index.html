@@ -126,7 +126,7 @@ h1{color:#fff;font-size:44px;font-weight:900;letter-spacing:-1px}
 /* sheets */
 .overlay{position:fixed;inset:0;background:rgba(15,8,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10;animation:fade .15s}
 .sheet{background:#fff;width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));max-height:92vh;max-height:92dvh;overflow:auto;position:relative;animation:up .22s ease-out;display:flex;flex-direction:column;gap:12px}
-.sheet h2{font-size:24px;font-weight:900}
+.sheet h2{font-size:24px;font-weight:900;padding-right:46px;line-height:1.15}
 .x{position:absolute;right:14px;top:14px;border:0;background:var(--soft);width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1}
 .qcard{border-radius:22px;overflow:hidden;margin-top:34px;box-shadow:0 10px 30px rgba(40,10,90,.2)}
 .qhead{background:var(--g);color:#fff;padding:12px 16px;font-weight:800;font-size:15px}
@@ -160,6 +160,41 @@ hr{border:0;border-top:2px solid var(--soft);margin:6px 0}
 .pfp .btns{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .pfp button{border:0;background:var(--soft);border-radius:999px;padding:8px 14px;font-weight:700}
 .pfp .rm{background:none;color:var(--red);padding:4px 6px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.st{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:20px;padding:12px 12px 12px 14px}
+.st .n{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--yellow);font-weight:900;font-size:18px;display:grid;place-items:center;flex:none}
+.st .tx{flex:1;font-size:15.5px;font-weight:700;line-height:1.3}
+.st .tx b{color:#7b2ff7;font-weight:900}
+.st .tx small{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:3px}
+.st.last{background:var(--ink);border-color:var(--ink);color:#fff}
+.st.last .n{background:var(--yellow);color:var(--ink)}
+.st.last .tx b{color:var(--yellow)}
+.st.last .tx small{color:rgba(255,255,255,.7)}
+.mk{width:124px;flex:none;background:#f2f2f7;border-radius:14px;padding:7px;font-size:11px;font-weight:700;color:#1c1c1e;display:flex;flex-direction:column;gap:4px}
+.mk .mrow{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:8px;padding:6px 8px;gap:4px}
+.mk .dim{opacity:.45}
+.mk .hl{outline:3px solid #ffd60a;outline-offset:1px}
+.mk .mbar{display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:5px 5px 5px 9px}
+.mk .mbar span{flex:1;font-size:9.5px;color:#3c3c43;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.mk .mbar i,.mk .icons i{width:24px;height:24px;border-radius:50%;background:#e5e5ea;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px;flex:none}
+.mk.dark{background:#1c1c1e}
+.mk .icons{display:flex;justify-content:space-around;padding:2px}
+.mk .icons i{background:rgba(255,255,255,.2);color:#fff}
+.mk .chips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.mk .chips span{background:#fff;border-radius:6px;padding:4px 6px;font-size:9.5px;font-weight:900}
+.mk .stk{background:#fff;border-radius:8px;padding:7px 6px;font-size:10px;font-weight:800;text-align:center;color:#1c1c1e}
+.mk .tog{display:flex;justify-content:space-between;align-items:center;font-size:9.5px}
+.mk .tog u{width:26px;height:16px;border-radius:999px;background:#34c759;position:relative;display:block}
+.mk .tog u:after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.mk .app{display:flex;align-items:center;gap:6px;font-weight:900;font-size:12px}
+.mk .app img{width:24px;height:24px;border-radius:6px}
+.mk .acts{display:flex;justify-content:space-between;font-size:10px;color:#0a84ff}
+.mk .acts b{padding:1px 6px;border-radius:6px}
+.howbtn{margin-top:10px}
+.install{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:20px;padding:14px 16px;font-weight:700;font-size:15px;line-height:1.3}
+.install .be{font-size:28px}
+.install small{display:block;font-weight:600;opacity:.75;font-size:13px}
+.install button{margin-left:auto;flex:none;border:0;background:var(--yellow);color:var(--ink);font-weight:900;border-radius:999px;padding:10px 14px}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-weight:700;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -337,6 +372,7 @@ function showAuth(mode) {
     const btn = $('#go'); btn.disabled = true; $('#err').textContent = '';
     try {
       setToken(await rpc(mode, { p_username: u, p_password: p }));
+      if (mode === 'signup') { try { localStorage.setItem('psst_new', '1'); } catch {} }
       go('/');
     } catch (err) { $('#err').textContent = errText(err); btn.disabled = false; }
   };
@@ -419,10 +455,8 @@ async function showInbox() {
       <div class="link">${esc(link)}</div>
       <button class="btn big share-ig" id="shareIg">📸 share on instagram</button>
       <button class="btn big share-snap snapchat-share-button" id="shareSnap" data-share-url="https://${esc(link)}">👻 share on snapchat</button>
+      <button class="btn soft howbtn" id="how">📖 step by step: how to post it</button>
       <div class="mini"><button id="copy">copy link</button><button id="promo">see story pic</button></div>
-      <details class="howto"><summary>how it works</summary>
-        <ol><li><b>instagram:</b> tap share, pick instagram → story. your link is already copied</li><li>tap the sticker icon, add the <b>link</b> sticker and paste</li><li>tap <b>customize sticker text</b> and write something like <i>ask me anything 🤫</i> so it doesn't show the web address</li><li>drop it on the 👇 spot</li><li><b>snapchat:</b> tap share and your link is attached to the snap for you</li><li>post it and wait for messages 👀</li></ol>
-      </details>
       ${me.paused ? '<p class="err" style="margin:12px 0 0">your inbox is paused, nobody can send you messages</p>' : ''}
     </section>
     <div id="bell"></div>
@@ -445,6 +479,8 @@ async function showInbox() {
   makePromo(me).then(b => { promoFile = new File([b], 'psst-story.png', { type: 'image/png' }); });
   $('#shareIg').onclick = () => shareToStory(url);
   $('#promo').onclick = () => showPromo(url);
+  $('#how').onclick = () => showHowTo('instagram');
+  try { if (localStorage.getItem('psst_new')) { localStorage.removeItem('psst_new'); setTimeout(() => showHowTo('instagram', true), 400); } } catch {}
   setupSnap(url);
   $('#gear').onclick = showSettings;
   await loadInbox();
@@ -546,8 +582,10 @@ function b64u(s) { const p = '='.repeat((4 - s.length % 4) % 4); const r = atob(
 async function renderBell() {
   const el = $('#bell'); if (!el) return;
   let html = '';
-  if (!pushOK()) {
-    if (isIOS && !isStandalone()) html = `<div class="bell"><span class="be">🔔</span><span>want notifications? tap <b>share</b> → <b>add to home screen</b>, then open psst from there</span></div>`;
+  if (!isStandalone() && (isIOS || isAndroid || inAppBrowser)) {
+    html = `<div class="install"><span class="be">📲</span><span>add psst to your home screen<small>${isIOS ? 'needed for notifications on iPhone' : 'opens like a real app + notifications'}</small></span><button id="inst">show me</button></div>`;
+  } else if (!pushOK()) {
+    html = '';
   } else if (Notification.permission === 'denied') {
     html = `<div class="bell"><span class="be">🔕</span><span>notifications are blocked. turn them on for psst in your phone settings</span></div>`;
   } else {
@@ -558,6 +596,7 @@ async function renderBell() {
   }
   el.innerHTML = html;
   const b = $('#pushOn'); if (b) b.onclick = enablePush;
+  const ib = $('#inst'); if (ib) ib.onclick = showInstall;
 }
 async function enablePush() {
   try {
@@ -568,6 +607,77 @@ async function enablePush() {
     await rpc('save_push', { p_token: token(), p_sub: sub.toJSON() });
     toast('notifications on 🔔'); renderBell();
   } catch (e) { toast("couldn't turn on notifications on this device"); }
+}
+
+/* ---------- step-by-step guides ---------- */
+const isAndroid = /Android/.test(navigator.userAgent);
+const inAppBrowser = /Instagram|FBAN|FBAV|Snapchat|musical_ly|TikTok/i.test(navigator.userAgent);
+const iconImg = '<img src="/icon.svg" alt="">';
+function stepsHtml(list) {
+  return `<div class="steps">${list.map(([t, small, mock], i) =>
+    `<div class="st ${i === list.length - 1 ? 'last' : ''}"><div class="n">${i + 1}</div><div class="tx">${t}${small ? `<small>${small}</small>` : ''}</div>${mock || ''}</div>`).join('')}</div>`;
+}
+const mrows = rows => `<div class="mk">${rows.map(([t, ic, h]) => `<div class="mrow ${h ? 'hl' : 'dim'}">${t}<span>${ic}</span></div>`).join('')}</div>`;
+function igSteps(fromPic) {
+  return [
+    fromPic
+      ? ['tap <b>save pic</b>, then open instagram and add it to your <b>story</b>', 'or go back and tap share on instagram to do it in one go', mrows([['Feed', '▦'], ['Story', '⊕', 1], ['Reel', '▶']])]
+      : ['tap <b>share on instagram</b>, pick <b>Instagram</b>, then <b>Story</b>', "no instagram in the list? tap see story pic and save it instead", mrows([['Feed', '▦'], ['Story', '⊕', 1], ['Message', '✈']])],
+    ['tap the <b>sticker</b> button at the top', null, `<div class="mk dark"><div class="icons"><i>Aa</i><i class="hl">☺</i><i>♫</i></div></div>`],
+    ['tap <b>LINK</b> and <b>paste</b>', 'your link is already copied, just paste it', `<div class="mk dark"><div class="chips"><span style="opacity:.5">POLL</span><span class="hl">🔗 LINK</span><span style="opacity:.5">MUSIC</span></div></div>`],
+    ['tap <b>customize sticker text</b> and write <b>ask me anything 🤫</b>', "so people don't see the web address", `<div class="mk dark"><div class="stk hl">🔗 ask me anything 🤫</div></div>`],
+    ['put it on the 👇 spot and post to <b>your story</b>', 'now wait for messages 👀', `<div class="mk"><div class="mrow hl">Your story <span>➜</span></div><div class="mrow dim">Close Friends <span>★</span></div></div>`],
+  ];
+}
+const snapSteps = () => [
+  ['tap <b>share on snapchat</b>', 'snapchat opens and your link is attached for you 🔗', `<div class="mk"><div class="mrow hl" style="background:#fffc00;justify-content:center">👻 share on snapchat</div></div>`],
+  ['take any snap, or pick your <b>story pic</b> from your camera roll', 'save it first with see story pic if you want the psst look', null],
+  ['send it to <b>My Story</b>', 'people tap the link on your snap to send you messages', `<div class="mk"><div class="mrow hl">My Story <span>➜</span></div><div class="mrow dim">Spotlight <span>▶</span></div></div>`],
+];
+function iphoneSteps() {
+  const list = [];
+  if (inAppBrowser) list.push(["open this page in <b>Safari</b> first", "you're inside the instagram/snapchat browser: tap ··· or ⋯ at the top, then open in browser", null]);
+  list.push(
+    ['tap <b>···</b> next to the address bar', 'older iPhone? tap the share button at the bottom and skip step ' + (list.length + 2), `<div class="mk"><div class="mbar"><span>${esc(location.host)}</span><i class="hl">···</i></div></div>`],
+    ['tap <b>Share</b>', null, mrows([['Copy', '⧉'], ['Share', '⬆', 1], ['Bookmark', '📖']])],
+    ['scroll down, tap <b>Add to Home Screen</b>', "not there? tap edit actions at the bottom and add it", mrows([['Favorites', '☆'], ['Add to Home Screen', '⊞', 1]])],
+    ['keep <b>Open as Web App</b> on, tap <b>Add</b>', null, `<div class="mk"><div class="mrow" style="flex-direction:column;align-items:stretch;gap:5px"><div class="acts"><span>Cancel</span><b class="hl">Add</b></div><div class="app">${iconImg}psst</div><div class="tog">Web App <u></u></div></div></div>`],
+    ['open <b>psst</b> from your home screen and tap <b>turn on</b>', 'that turns on notifications for new messages 🔔', null],
+  );
+  return list;
+}
+function androidSteps() {
+  const list = [];
+  if (inAppBrowser) list.push(["open this page in <b>Chrome</b> first", "you're inside the instagram/snapchat browser: tap ⋮ at the top, then open in Chrome", null]);
+  list.push(
+    ['tap <b>⋮</b> at the top right', null, `<div class="mk"><div class="mbar"><span>${esc(location.host)}</span><i class="hl">⋮</i></div></div>`],
+    ['tap <b>Add to home screen</b>', 'some phones say install app', mrows([['New tab', '＋'], ['Add to home screen', '📲', 1]])],
+    ['tap <b>Install</b>', 'pick install if it asks, not create shortcut', `<div class="mk"><div class="mrow" style="flex-direction:column;align-items:stretch;gap:6px"><div class="app">${iconImg}psst</div><div class="acts" style="justify-content:flex-end;gap:8px"><span style="color:#5f6368">Cancel</span><b class="hl" style="background:#1a73e8;color:#fff">Install</b></div></div></div>`],
+    ['open <b>psst</b> from your home screen and tap <b>turn on</b>', 'that turns on notifications for new messages 🔔', null],
+  );
+  return list;
+}
+function tabbedSheet(title, intro, tabs, start) {
+  const s = sheet(`<h2>${title}</h2>${intro ? `<p style="color:var(--muted);font-weight:600;font-size:15px;margin-top:-4px">${intro}</p>` : ''}
+    <div class="tabs" style="margin:0">${tabs.map(([k, label]) => `<button data-k="${k}">${label}</button>`).join('')}</div><div id="tabBody"></div>
+    <button class="btn" id="gotIt">got it 👍</button>`);
+  const show = k => {
+    s.el.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.k === k));
+    $('#tabBody', s.el).innerHTML = stepsHtml(tabs.find(t => t[0] === k)[2]());
+  };
+  s.el.querySelectorAll('.tabs button').forEach(b => b.onclick = () => show(b.dataset.k));
+  $('#gotIt', s.el).onclick = () => s.close();
+  show(start);
+  return s;
+}
+function showHowTo(start, welcome) {
+  tabbedSheet(welcome ? 'your link is ready 🎉' : 'how to post your link',
+    welcome ? 'here’s how to get messages. it takes 30 seconds' : null,
+    [['instagram', '📸 instagram', () => igSteps(false)], ['snapchat', '👻 snapchat', snapSteps]], start);
+}
+function showInstall() {
+  tabbedSheet('add psst to your home screen', 'it opens full screen like a real app, and you get notifications',
+    [['iphone', '📱 iPhone', iphoneSteps], ['android', '🤖 Android', androidSteps]], isAndroid ? 'android' : 'iphone');
 }
 
 /* ---------- profile pic ---------- */
@@ -611,14 +721,9 @@ async function showPromo(url) {
   const s = sheet(`
     <h2>your story pic</h2>
     <img class="preview" src="${src}" alt="story picture with your prompt">
-    <ol style="margin:4px 0 0 20px;line-height:1.7;font-size:15px">
-      <li>save this pic and post it to your story</li>
-      <li>add the <b>link</b> sticker and paste your link</li>
-      <li>tap <b>customize sticker text</b> → <i>ask me anything 🤫</i></li>
-      <li>put the sticker on the 👇 spot</li>
-    </ol>
     <a class="btn big" href="${src}" download="psst-story.png">save pic</a>
-    <button class="btn soft" id="cp">copy link</button>`);
+    <button class="btn soft" id="cp">copy link</button>
+    ${stepsHtml(igSteps(true))}`);
   $('#cp', s.el).onclick = () => copy(url);
 }
 function setupSnap(url) {
