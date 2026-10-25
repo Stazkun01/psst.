@@ -221,14 +221,15 @@ const ERR = {
 };
 const errText = e => ERR[e.message] || 'something went wrong, try again';
 
+// 🎲 suggestions are written from the SENDER's side: things they'd say or ask the inbox owner
 const DICE = [
-  "what's your honest first impression of me?", "rate me 1–10, be honest",
-  "what's something you've always wanted to ask me?", "who do you think i have a crush on?",
-  "what song reminds you of me?", "what's my most annoying habit?",
-  "tell me a secret", "describe me in 3 words", "what's my toxic trait?",
-  "what emoji fits me best?", "what should i do this weekend?",
-  "what's the best memory we have together?", "do you think i'm a good friend?",
-  "if we were stuck on an island, would we survive?", "what's one thing you'd change about me?",
+  "be honest, are you talking to someone rn? 👀", "what's something you've never told anyone?",
+  "who was your first crush?", "what's the last thing that made you laugh so hard you cried?",
+  "you're way funnier than you think fr", "i've always wanted to talk to you but never did",
+  "what's your biggest red flag?", "what song are you obsessed with rn?",
+  "what would you do with a million dirhams?", "who's your favorite person rn?",
+  "your vibe is unmatched ngl", "what's the craziest thing you've ever done?",
+  "what's your dream date?", "do you have a crush on someone? 👀", "what's your toxic trait?",
 ];
 
 const GAMES = {
@@ -246,12 +247,19 @@ const G = k => GAMES[k] || GAMES.messages;
 const grad = k => `linear-gradient(160deg,${G(k).c[0]} 0%,${G(k).c[1]} 45%,${G(k).c[2]} 100%)`;
 const setTheme = k => document.documentElement.style.setProperty('--g', grad(k));
 const GAME_DICE = {
-  nhie: ["never have i ever had a crush on you 👀", "never have i ever stalked your profile", "never have i ever lied to you", "never have i ever screenshotted your story"],
-  rate: ["10/10 no notes", "solid 8, the vibes carry", "9 but only because nobody's perfect", "11/10 stop asking"],
-  words: ["funny, loyal, chaotic", "kind, smart, iconic", "mysterious, cool, unpredictable", "sweet, loud, unforgettable"],
-  flags: ["green flag, always 💚", "red flag but in a fun way 🚩", "beige flag honestly", "greenest flag i know"],
-  shoot: ["i've liked you for a while ngl", "you're cute, that's it that's the message", "we should hang out sometime 👀"],
-  confess: ["i still think about that one time", "i was the one who...", "i've never told anyone this but"],
+  tbh: ["tbh i thought you hated me at first 😭", "tbh you seem intimidating but you're actually so nice", "tbh your stories are the best part of my day",
+    "tbh you deserve way more credit than you get", "tbh you're lowkey one of the funniest people i know", "tbh i wish we talked more"],
+  nhie: ["never have i ever ghosted someone", "never have i ever had a crush on a friend", "never have i ever stalked an ex",
+    "never have i ever lied to my parents about where i was", "never have i ever sent a text to the wrong person", "never have i ever cried over a movie"],
+  confess: ["i used to have a crush on you 🙈", "i still have that screenshot 💀", "i was lowkey jealous of you for a while",
+    "i've wanted to be friends with you for so long", "i talk about you way more than you think", "i've been too shy to text you first"],
+  words: ["funny, loyal, chaotic", "kind, smart, iconic", "mysterious, cool, unpredictable", "sweet, loud, unforgettable", "calm, genuine, underrated"],
+  rate: ["10/10 no notes", "solid 8, the vibes carry", "9, nobody's perfect", "11/10 stop asking", "10 but your music taste is a 6 💀"],
+  shoot: ["i've liked you for a while ngl", "you're cute, that's it that's the message", "we should hang out sometime 👀",
+    "your smile is actually unfair", "if you're single... asking for me"],
+  ama: ["what's your biggest fear?", "who do you text the most?", "what's your guilty pleasure?",
+    "what's one thing you'd change about your life?", "are you talking to someone rn? 👀", "what's the best advice you ever got?"],
+  flags: ["green flag, always 💚", "red flag but in a fun way 🚩", "beige flag honestly 😭", "greenest flag i know", "red flag: never replies on time"],
 };
 const avatarHtml = (p) => p.avatar ? `<img src="${p.avatar}" alt="">` : esc((p.username || '?')[0]);
 const flag = cc => cc && /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map(ch => 127397 + ch.charCodeAt(0))) : '';
@@ -414,7 +422,8 @@ async function showSend(username) {
   const upd = () => { go_.disabled = !t.value.trim(); c.textContent = t.value.length > 240 ? (300 - t.value.length) + ' left' : ''; };
   t.oninput = upd;
   const dice = GAME_DICE[p.game] || DICE;
-  $('#dice').onclick = () => { t.value = dice[Math.floor(Math.random() * dice.length)]; upd(); t.focus(); };
+  let lastDice = -1;
+  $('#dice').onclick = () => { let i; do { i = Math.floor(Math.random() * dice.length); } while (i === lastDice && dice.length > 1); lastDice = i; t.value = dice[i]; upd(); t.focus(); };
   $('#f').onsubmit = async e => {
     e.preventDefault();
     if (!t.value.trim()) return;
