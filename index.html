@@ -341,7 +341,7 @@ async function showInbox() {
       <button class="btn big share-snap snapchat-share-button" id="shareSnap" data-share-url="https://${esc(link)}">👻 share on snapchat</button>
       <div class="mini"><button id="copy">copy link</button><button id="promo">see story pic</button></div>
       <details class="howto"><summary>how it works</summary>
-        <ol><li><b>instagram:</b> tap share, pick instagram → story. your link is already copied</li><li>tap the sticker icon, add the <b>link</b> sticker, paste, and drop it on the 👇 spot</li><li><b>snapchat:</b> tap share and your link is attached to the snap for you</li><li>post it and wait for messages 👀</li></ol>
+        <ol><li><b>instagram:</b> tap share, pick instagram → story. your link is already copied</li><li>tap the sticker icon, add the <b>link</b> sticker and paste</li><li>tap <b>customize sticker text</b> and write something like <i>ask me anything 🤫</i> so it doesn't show the web address</li><li>drop it on the 👇 spot</li><li><b>snapchat:</b> tap share and your link is attached to the snap for you</li><li>post it and wait for messages 👀</li></ol>
       </details>
       ${me.paused ? '<p class="err" style="margin:12px 0 0">your inbox is paused, nobody can send you messages</p>' : ''}
     </section>
@@ -444,7 +444,7 @@ async function shareToStory(url) {
   const copied = quietCopy(url); // same tap as the share, so the browser allows both
   const file = promoFile;
   if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-    toast('link copied 🔗 pick instagram → story');
+    toast('link copied 🔗 pick instagram → story, then add the link sticker');
     try { await navigator.share({ files: [file] }); }
     catch (e) { if (e.name !== 'AbortError') showPromo(url); }
     return;
@@ -461,6 +461,7 @@ async function showPromo(url) {
     <ol style="margin:4px 0 0 20px;line-height:1.7;font-size:15px">
       <li>save this pic and post it to your story</li>
       <li>add the <b>link</b> sticker and paste your link</li>
+      <li>tap <b>customize sticker text</b> → <i>ask me anything 🤫</i></li>
       <li>put the sticker on the 👇 spot</li>
     </ol>
     <a class="btn big" href="${src}" download="psst-story.png">save pic</a>
