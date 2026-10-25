@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>psst 🤫 anonymous messages</title>
+<meta name="description" content="send me anonymous messages 🤫 no account needed.">
+<meta property="og:title" content="psst 🤫 send me anonymous messages">
+<meta property="og:description" content="totally anonymous. no account needed.">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:linear-gradient(160deg,#4f6bff 0%,#9b4dff 45%,#ff4fa3 100%);
+  --ink:#14121f; --muted:#6b6880; --line:#ece8f5; --soft:#f4f1fa;
+  --yellow:#ffe14d; --red:#e11d48; --r:26px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);background:#8b5cf6;min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;background:var(--g);z-index:-1}
+button{font:inherit;cursor:pointer;color:inherit}
+.wrap{max-width:440px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:16px}
+.center{min-height:100vh;min-height:100dvh;justify-content:center;text-align:center}
+.logo{font-weight:900;font-size:68px;color:#fff;letter-spacing:-3px;line-height:1}
+.logo span{color:var(--yellow)}
+.logo.sm{font-size:32px;letter-spacing:-1px;text-decoration:none}
+.tag{color:#fff;font-size:19px;font-weight:600;opacity:.95}
+.card{background:#fff;border-radius:var(--r);padding:20px;box-shadow:0 14px 40px rgba(40,10,90,.25);text-align:left}
+.tabs{display:flex;background:var(--soft);border-radius:999px;padding:4px;margin-bottom:18px}
+.tabs button{flex:1;border:0;background:none;padding:10px;border-radius:999px;font-weight:700;color:var(--muted)}
+.tabs .active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+label{display:block;font-weight:600;font-size:14px;color:var(--muted);margin-bottom:14px}
+input,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:6px;background:#faf9fd;outline:none;resize:none}
+input:focus,textarea:focus{border-color:#9b4dff;background:#fff}
+.btn{display:block;width:100%;border:0;border-radius:999px;background:var(--ink);color:#fff;font-weight:800;font-size:17px;padding:15px 18px;text-align:center;text-decoration:none;transition:transform .1s,opacity .2s}
+.btn.white{background:#fff;color:var(--ink)}
+.btn.soft{background:var(--soft);color:var(--ink)}
+.btn.big{font-size:20px;padding:18px}
+.btn.sm{font-size:15px;padding:12px 14px}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.err{color:var(--red);font-weight:600;font-size:14px;min-height:20px;margin:-4px 0 10px}
+.fine{color:#fff;opacity:.88;font-size:13px;text-align:center;line-height:1.4}
+.ghost{color:#fff;font-weight:700;text-align:center;text-decoration:none;padding:10px;display:block}
+.spinner{width:36px;height:36px;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin:auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* send page */
+.send{padding:0;overflow:hidden;background:rgba(255,255,255,.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.send-head{display:flex;gap:12px;align-items:center;padding:16px 18px;background:#fff}
+.avatar{width:50px;height:50px;border-radius:50%;background:var(--g);color:#fff;font-weight:900;font-size:22px;display:grid;place-items:center;flex:none;text-transform:uppercase}
+.handle{font-size:13px;color:var(--muted);font-weight:600}
+.prompt{font-weight:800;font-size:18px;line-height:1.2;word-break:break-word}
+.send-body{position:relative}
+.send-body textarea{border:0;background:transparent;min-height:170px;font-size:21px;font-weight:700;margin:0;padding:18px 18px 60px;border-radius:0}
+.send-body textarea::placeholder{color:rgba(20,18,31,.45)}
+.send-body textarea:focus{background:transparent}
+.dice{position:absolute;right:12px;bottom:12px;border:0;background:#fff;border-radius:50%;width:46px;height:46px;font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.dice:active{transform:rotate(25deg) scale(.95)}
+.count{position:absolute;left:18px;bottom:16px;font-size:13px;font-weight:700;color:rgba(20,18,31,.5)}
+.lock{color:#fff;text-align:center;font-weight:700;font-size:15px}
+.big-emoji{font-size:72px;line-height:1}
+h1{color:#fff;font-size:44px;font-weight:900;letter-spacing:-1px}
+.sub{color:#fff;font-size:18px;font-weight:600;opacity:.95}
+
+/* inbox */
+.top{display:flex;justify-content:space-between;align-items:center;max-width:440px;margin:0 auto;padding:18px 16px 0}
+.icon{border:0;background:rgba(255,255,255,.22);width:46px;height:46px;border-radius:50%;font-size:20px;color:#fff}
+.small{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.link{font-size:19px;font-weight:800;margin:6px 0 14px;word-break:break-all}
+.howto{margin-top:14px}
+.howto summary{cursor:pointer;color:var(--muted);font-weight:700;font-size:14px}
+.howto ol{margin:10px 0 0 20px;font-size:15px;line-height:1.7}
+.inbox-head{display:flex;justify-content:space-between;align-items:baseline;color:#fff;margin-top:8px}
+.inbox-head h2{font-size:26px;font-weight:900}
+.inbox-head span{font-weight:700;opacity:.9}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.msg{border:0;border-radius:22px;padding:16px;min-height:128px;text-align:left;background:#fff;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:0 8px 24px rgba(40,10,90,.18);transition:transform .1s}
+.msg:active{transform:scale(.97)}
+.msg.new{background:var(--yellow);align-items:center;justify-content:center;text-align:center}
+.msg.new .e{font-size:40px;line-height:1}
+.msg.new .t{font-weight:900;font-size:16px}
+.msg .t{font-weight:700;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.msg .meta{font-size:12px;color:var(--muted);font-weight:700}
+.empty{grid-column:1/-1;background:rgba(255,255,255,.2);color:#fff;border-radius:22px;padding:30px 20px;text-align:center;font-weight:600;line-height:1.5}
+.empty b{display:block;font-size:40px;margin-bottom:6px}
+
+/* sheets */
+.overlay{position:fixed;inset:0;background:rgba(15,8,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10;animation:fade .15s}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));max-height:92vh;max-height:92dvh;overflow:auto;position:relative;animation:up .22s ease-out;display:flex;flex-direction:column;gap:12px}
+.sheet h2{font-size:24px;font-weight:900}
+.x{position:absolute;right:14px;top:14px;border:0;background:var(--soft);width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1}
+.qcard{border-radius:22px;overflow:hidden;margin-top:34px;box-shadow:0 10px 30px rgba(40,10,90,.2)}
+.qhead{background:var(--g);color:#fff;padding:12px 16px;font-weight:800;font-size:15px}
+.qbody{background:var(--ink);color:#fff;padding:22px 18px;font-weight:800;font-size:22px;line-height:1.3;word-break:break-word;white-space:pre-wrap}
+.time{font-size:13px;color:var(--muted);text-align:center;font-weight:600}
+.preview{width:62%;margin:4px auto 0;border-radius:18px;display:block;box-shadow:0 10px 30px rgba(40,10,90,.25)}
+.toggle{display:flex;gap:12px;align-items:center;color:var(--ink);font-size:16px;font-weight:700;margin:4px 0 14px}
+.toggle input{width:24px;height:24px;margin:0;accent-color:#9b4dff}
+hr{border:0;border-top:2px solid var(--soft);margin:6px 0}
+.linkbtn{background:none;border:0;font-weight:700;color:var(--red);padding:10px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(40px);opacity:.5}}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-weight:700;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="app"><div class="wrap center"><div class="spinner"></div></div></div>
+<div id="toast"></div>
+<script>
+const SB = 'https://bmmgvwzcthapvulilwjj.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtbWd2d3pjdGhhcHZ1bGlsd2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NTUwNzQsImV4cCI6MjEwODUzMTA3NH0.VyfD1_SqXXXU6jInw1t8JkJ81x1XJRXn1Bm66u995Lg';
+
+const ERR = {
+  bad_username: 'usernames are 3–20 letters, numbers, _ or .',
+  reserved: 'that username is reserved, pick another',
+  short_password: 'password needs at least 6 characters',
+  username_taken: 'that username is taken 😕',
+  wrong_login: 'wrong username or password',
+  slow_down: 'slow down a little, try again in a minute',
+  paused: "they're not taking messages right now",
+  no_user: "this person doesn't exist",
+  bad_length: 'that\'s too long',
+};
+const errText = e => ERR[e.message] || 'something went wrong, try again';
+
+const DICE = [
+  "what's your honest first impression of me?", "rate me 1–10, be honest",
+  "what's something you've always wanted to ask me?", "who do you think i have a crush on?",
+  "what song reminds you of me?", "what's my most annoying habit?",
+  "tell me a secret", "describe me in 3 words", "what's my toxic trait?",
+  "what emoji fits me best?", "what should i do this weekend?",
+  "what's the best memory we have together?", "do you think i'm a good friend?",
+  "if we were stuck on an island, would we survive?", "what's one thing you'd change about me?",
+];
+
+const $ = (s, el = document) => el.querySelector(s);
+const app = $('#app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+let memToken = null;
+const token = () => store.get('psst_token') || memToken;
+const setToken = t => { memToken = t; store.set('psst_token', t); };
+
+async function rpc(fn, args = {}) {
+  const r = await fetch(`${SB}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(args),
+  });
+  const txt = await r.text();
+  let d = null; try { d = txt ? JSON.parse(txt) : null; } catch {}
+  if (!r.ok) {
+    const e = new Error((d && d.message) || 'error');
+    if (e.message === 'not_logged_in') { setToken(null); go('/'); }
+    throw e;
+  }
+  return d;
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function ago(iso) {
+  const s = Math.max(1, (Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
+
+let poll = null;
+function go(path) { history.pushState(null, '', path); route(); }
+window.addEventListener('popstate', route);
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-nav]');
+  if (a) { e.preventDefault(); go(a.getAttribute('href')); }
+});
+
+function route() {
+  clearInterval(poll); poll = null;
+  document.querySelectorAll('.overlay').forEach(o => o.remove());
+  const path = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, '')).toLowerCase();
+  if (!path) return token() ? showInbox() : showAuth('signup');
+  if (path.includes('/')) return showMissing();
+  showSend(path);
+}
+
+/* ---------- auth ---------- */
+function showAuth(mode) {
+  app.innerHTML = `
+  <main class="wrap center">
+    <div class="logo">psst<span>.</span></div>
+    <p class="tag">anonymous messages for your story 🤫</p>
+    <div class="card">
+      <div class="tabs">
+        <button data-m="signup" class="${mode === 'signup' ? 'active' : ''}">sign up</button>
+        <button data-m="login" class="${mode === 'login' ? 'active' : ''}">log in</button>
+      </div>
+      <form id="f" novalidate>
+        <label>username<input name="u" placeholder="yourname" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20"></label>
+        <label>password<input name="p" type="password" placeholder="at least 6 characters" autocomplete="${mode === 'signup' ? 'new-password' : 'current-password'}"></label>
+        <div class="err" id="err"></div>
+        <button class="btn big" id="go">${mode === 'signup' ? 'get my link ✨' : 'log in'}</button>
+      </form>
+    </div>
+    <p class="fine">no email. no bots. no paying to see who sent it. ever.</p>
+  </main>`;
+  app.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showAuth(b.dataset.m));
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const u = e.target.u.value.trim().replace(/^@/, ''), p = e.target.p.value;
+    const btn = $('#go'); btn.disabled = true; $('#err').textContent = '';
+    try {
+      setToken(await rpc(mode, { p_username: u, p_password: p }));
+      go('/');
+    } catch (err) { $('#err').textContent = errText(err); btn.disabled = false; }
+  };
+}
+
+/* ---------- send page ---------- */
+async function showSend(username) {
+  app.innerHTML = `<div class="wrap center"><div class="spinner"></div></div>`;
+  let p;
+  try { p = await rpc('get_profile', { p_username: username }); } catch { p = null; }
+  if (!p) return showMissing();
+  if (p.paused) {
+    app.innerHTML = `<main class="wrap center"><div class="big-emoji">😴</div><h1>on a break</h1>
+      <p class="sub">@${esc(p.username)} isn't taking messages right now</p>
+      <a class="btn white" href="/" data-nav>get your own messages 👀</a></main>`;
+    return;
+  }
+  app.innerHTML = `
+  <main class="wrap" style="padding-top:40px">
+    <form class="card send" id="f">
+      <div class="send-head">
+        <div class="avatar">${esc(p.username[0])}</div>
+        <div><div class="handle">@${esc(p.username)}</div><div class="prompt">${esc(p.prompt)}</div></div>
+      </div>
+      <div class="send-body">
+        <textarea id="t" maxlength="300" placeholder="send me anonymous messages..." aria-label="your message"></textarea>
+        <span class="count" id="c"></span>
+        <button type="button" class="dice" id="dice" aria-label="random question">🎲</button>
+      </div>
+    </form>
+    <div class="lock">🔒 anonymous q&amp;a</div>
+    <button class="btn big" form="f" id="go" disabled>send!</button>
+    <a class="ghost" href="/" data-nav>👀 get your own messages</a>
+  </main>`;
+  const t = $('#t'), go_ = $('#go'), c = $('#c');
+  const upd = () => { go_.disabled = !t.value.trim(); c.textContent = t.value.length > 240 ? (300 - t.value.length) + ' left' : ''; };
+  t.oninput = upd;
+  $('#dice').onclick = () => { t.value = DICE[Math.floor(Math.random() * DICE.length)]; upd(); t.focus(); };
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    if (!t.value.trim()) return;
+    go_.disabled = true; go_.textContent = 'sending...';
+    try {
+      await rpc('send_message', { p_username: p.username, p_body: t.value });
+      app.innerHTML = `<main class="wrap center">
+        <div class="big-emoji">🤫</div><h1>sent!</h1>
+        <p class="sub">@${esc(p.username)} will never know it was you</p>
+        <div style="height:12px"></div>
+        <button class="btn white big" id="again">send another</button>
+        <a class="btn big" href="/" data-nav>get your own messages 👀</a></main>`;
+      $('#again').onclick = () => showSend(username);
+    } catch (err) { toast(errText(err)); go_.disabled = false; go_.textContent = 'send!'; }
+  };
+}
+
+function showMissing() {
+  app.innerHTML = `<main class="wrap center"><div class="big-emoji">🫥</div><h1>nobody here</h1>
+    <p class="sub">this link doesn't belong to anyone (yet)</p><div style="height:12px"></div>
+    <a class="btn white big" href="/" data-nav>claim your own link</a></main>`;
+}
+
+/* ---------- inbox ---------- */
+let me = null, msgs = [];
+async function showInbox() {
+  app.innerHTML = `<div class="wrap center"><div class="spinner"></div></div>`;
+  try { me = await rpc('me', { p_token: token() }); } catch { return; }
+  if (!me) { setToken(null); return showAuth('login'); }
+  const link = `${location.host}/${me.username}`;
+  app.innerHTML = `
+  <header class="top"><a class="logo sm" href="/" data-nav>psst<span>.</span></a>
+    <button class="icon" id="gear" aria-label="settings">⚙️</button></header>
+  <main class="wrap">
+    <section class="card">
+      <div class="small">your link</div>
+      <div class="link">${esc(link)}</div>
+      <div class="row"><button class="btn sm" id="copy">copy link</button><button class="btn sm soft" id="share">share</button></div>
+      <details class="howto"><summary>how to put it on your story</summary>
+        <ol><li>copy your link</li><li>make a story on instagram or snapchat</li><li>add the <b>link</b> sticker and paste it</li><li>post it and wait for messages 👀</li></ol>
+      </details>
+      ${me.paused ? '<p class="err" style="margin:12px 0 0">your inbox is paused, nobody can send you messages</p>' : ''}
+    </section>
+    <div class="inbox-head"><h2>messages</h2><span id="cnt"></span></div>
+    <div class="grid" id="list"></div>
+  </main>`;
+  $('#copy').onclick = () => copy('https://' + link);
+  $('#share').onclick = async () => {
+    const url = 'https://' + link;
+    if (navigator.share) { try { await navigator.share({ title: 'psst', text: 'send me anonymous messages 🤫', url }); } catch {} }
+    else copy(url);
+  };
+  $('#gear').onclick = showSettings;
+  await loadInbox();
+  poll = setInterval(() => { if (!document.hidden && !document.querySelector('.overlay')) loadInbox(); }, 15000);
+}
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const i = document.createElement('input'); i.value = text; document.body.appendChild(i);
+    i.select(); try { document.execCommand('copy'); } catch {} i.remove();
+  }
+  toast('link copied ✨');
+}
+
+async function loadInbox() {
+  try { msgs = await rpc('get_inbox', { p_token: token() }) || []; } catch { return; }
+  const list = $('#list'); if (!list) return;
+  const unread = msgs.filter(m => !m.seen).length;
+  $('#cnt').textContent = unread ? `${unread} new` : '';
+  if (!msgs.length) {
+    list.innerHTML = `<div class="empty"><b>📭</b>no messages yet.<br>post your link on your story and they'll show up here.</div>`;
+    return;
+  }
+  list.innerHTML = msgs.map((m, i) => m.seen
+    ? `<button class="msg" data-i="${i}"><span class="t">${esc(m.body)}</span><span class="meta">${ago(m.created_at)}${m.answer ? ' · replied ✓' : ''}</span></button>`
+    : `<button class="msg new" data-i="${i}"><span class="e">💌</span><span class="t">new message!</span><span class="meta" style="color:#7a6a00">${ago(m.created_at)}</span></button>`
+  ).join('');
+  list.querySelectorAll('.msg').forEach(b => b.onclick = () => openMsg(msgs[+b.dataset.i]));
+}
+
+function sheet(html) {
+  const o = document.createElement('div'); o.className = 'overlay';
+  o.innerHTML = `<div class="sheet"><button class="x" aria-label="close">×</button>${html}</div>`;
+  o.onclick = e => { if (e.target === o || e.target.closest('.x')) close(); };
+  const close = () => { o.remove(); loadInbox(); };
+  document.body.appendChild(o);
+  return { el: o, close };
+}
+
+function openMsg(m) {
+  if (!m.seen) { m.seen = true; rpc('mark_seen', { p_token: token(), p_id: m.id }).catch(() => {}); }
+  const s = sheet(`
+    <div class="qcard"><div class="qhead">${esc(me.prompt)}</div><div class="qbody">${esc(m.body)}</div></div>
+    <div class="time">${ago(m.created_at)}</div>
+    <label style="margin:0">your reply (optional, goes on the image)<textarea id="ans" rows="3" maxlength="500" placeholder="type your answer...">${esc(m.answer || '')}</textarea></label>
+    <button class="btn big" id="mk">📲 make story image</button>
+    <div id="pv"></div>
+    <div class="row"><button class="btn sm soft" id="del">🗑 delete</button><button class="btn sm soft" id="blk">🚫 block sender</button></div>
+    <p class="time">blocking deletes everything this person sent you and silently drops anything new from them.</p>`);
+  const el = s.el;
+  $('#mk', el).onclick = async () => {
+    const btn = $('#mk', el); btn.disabled = true; btn.textContent = 'making it...';
+    const answer = $('#ans', el).value.trim();
+    try { await rpc('answer_message', { p_token: token(), p_id: m.id, p_answer: answer }); m.answer = answer; } catch {}
+    const blob = await makeStory(me.prompt, m.body, answer, me.username);
+    const file = new File([blob], 'psst-story.png', { type: 'image/png' });
+    const url = URL.createObjectURL(blob);
+    const canShare = navigator.canShare && navigator.canShare({ files: [file] });
+    $('#pv', el).innerHTML = `<img class="preview" src="${url}" alt="story preview">
+      <div style="height:12px"></div>
+      ${canShare ? '<button class="btn big" id="sh">share to story</button><div style="height:8px"></div>' : ''}
+      <a class="btn ${canShare ? 'soft' : 'big'}" href="${url}" download="psst-story.png">save image</a>
+      <p class="time" style="margin-top:8px">${canShare ? 'tap share and pick instagram or snapchat' : 'save it, then post it to your story'}</p>`;
+    btn.style.display = 'none';
+    if (canShare) $('#sh', el).onclick = () => navigator.share({ files: [file] }).catch(() => {});
+  };
+  $('#del', el).onclick = async () => {
+    if (!confirm('delete this message?')) return;
+    await rpc('delete_message', { p_token: token(), p_id: m.id }).catch(() => {});
+    toast('deleted'); s.close();
+  };
+  $('#blk', el).onclick = async () => {
+    if (!confirm('block whoever sent this? all their messages will be deleted.')) return;
+    await rpc('block_sender', { p_token: token(), p_id: m.id }).catch(() => {});
+    toast('blocked 🚫'); s.close();
+  };
+}
+
+/* ---------- story image ---------- */
+function wrap(ctx, text, maxW) {
+  const out = [];
+  for (const para of String(text).split('\n')) {
+    let line = '';
+    for (let word of para.split(/\s+/)) {
+      if (!word) continue;
+      while (ctx.measureText(word).width > maxW) {
+        let i = word.length; while (i > 1 && ctx.measureText(word.slice(0, i)).width > maxW) i--;
+        if (line) { out.push(line); line = ''; }
+        out.push(word.slice(0, i)); word = word.slice(i);
+      }
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) { out.push(line); line = word; } else line = test;
+    }
+    out.push(line);
+  }
+  return out;
+}
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+async function makeStory(prompt, body, answer, username) {
+  try { await Promise.all(['900 60px Outfit', '800 60px Outfit', '700 60px Outfit', '600 30px Outfit'].map(f => document.fonts.load(f))); } catch {}
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, W * 0.55, H);
+  g.addColorStop(0, '#4f6bff'); g.addColorStop(.45, '#9b4dff'); g.addColorStop(1, '#ff4fa3');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+
+  const CW = 900, CX = (W - CW) / 2;
+  let L;
+  for (let s = 1; s >= 0.5; s -= 0.05) {
+    const hs = 42 * s, bs = 66 * s, as = 52 * s, pad = 52 * s;
+    x.font = `800 ${hs}px Outfit, sans-serif`; const pl = wrap(x, prompt, CW - pad * 2);
+    x.font = `800 ${bs}px Outfit, sans-serif`; const bl = wrap(x, body, CW - pad * 2);
+    x.font = `700 ${as}px Outfit, sans-serif`; const al = answer ? wrap(x, answer, CW - pad * 2) : [];
+    const headH = pad * 1.4 + pl.length * hs * 1.25, bodyH = pad * 2 + bl.length * bs * 1.25;
+    const ansH = al.length ? pad * 2 + al.length * as * 1.3 : 0;
+    const total = headH + bodyH + (ansH ? 36 + ansH : 0);
+    L = { hs, bs, as, pad, pl, bl, al, headH, bodyH, ansH, total };
+    if (total < H - 520) break;
+  }
+  let y = Math.max(200, (H - L.total) / 2 - 70);
+
+  // question card
+  x.save(); x.shadowColor = 'rgba(30,5,70,.35)'; x.shadowBlur = 60; x.shadowOffsetY = 20;
+  rr(x, CX, y, CW, L.headH + L.bodyH, 54); x.fillStyle = '#14121f'; x.fill(); x.restore();
+  x.save(); rr(x, CX, y, CW, L.headH + L.bodyH, 54); x.clip();
+  x.fillStyle = '#fff'; x.fillRect(CX, y, CW, L.headH);
+  x.fillStyle = '#14121f'; x.textBaseline = 'top'; x.font = `800 ${L.hs}px Outfit, sans-serif`;
+  L.pl.forEach((ln, i) => x.fillText(ln, CX + L.pad, y + L.pad * 0.7 + i * L.hs * 1.25));
+  x.fillStyle = '#fff'; x.font = `800 ${L.bs}px Outfit, sans-serif`;
+  L.bl.forEach((ln, i) => x.fillText(ln, CX + L.pad, y + L.headH + L.pad + i * L.bs * 1.25));
+  x.restore();
+  y += L.headH + L.bodyH;
+
+  // answer bubble
+  if (L.ansH) {
+    y += 36;
+    x.save(); x.shadowColor = 'rgba(30,5,70,.25)'; x.shadowBlur = 40; x.shadowOffsetY = 12;
+    rr(x, CX, y, CW, L.ansH, 46); x.fillStyle = '#ffe14d'; x.fill(); x.restore();
+    x.fillStyle = '#14121f'; x.font = `700 ${L.as}px Outfit, sans-serif`; x.textBaseline = 'top';
+    L.al.forEach((ln, i) => x.fillText(ln, CX + L.pad, y + L.pad + i * L.as * 1.3));
+  }
+
+  // branding
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  x.font = '900 84px Outfit, sans-serif'; const w1 = x.measureText('psst').width, w2 = x.measureText('.').width;
+  x.textAlign = 'left'; const bx = (W - w1 - w2) / 2;
+  x.fillStyle = '#fff'; x.fillText('psst', bx, H - 190); x.fillStyle = '#ffe14d'; x.fillText('.', bx + w1, H - 190);
+  x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '600 36px Outfit, sans-serif';
+  x.fillText('send me anonymous messages 👆 link in story', W / 2, H - 125);
+
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+
+/* ---------- settings ---------- */
+function showSettings() {
+  const s = sheet(`
+    <h2>settings</h2>
+    <label>your prompt<input id="sp" maxlength="80" value="${esc(me.prompt)}"></label>
+    <label class="toggle"><input type="checkbox" id="spause" ${me.paused ? 'checked' : ''}> pause new messages</label>
+    <label>hide messages containing these words (comma separated)<textarea id="sf" rows="2" placeholder="e.g. ugly, loser">${esc((me.filter_words || []).join(', '))}</textarea></label>
+    <button class="btn big" id="save">save</button>
+    <hr>
+    <button class="btn soft" id="out">log out</button>
+    <button class="linkbtn" id="delacc">delete my account</button>`);
+  const el = s.el;
+  $('#save', el).onclick = async () => {
+    const words = $('#sf', el).value.split(',').map(w => w.trim().toLowerCase()).filter(Boolean).slice(0, 100);
+    try {
+      await rpc('update_settings', { p_token: token(), p_prompt: $('#sp', el).value, p_paused: $('#spause', el).checked, p_filter_words: words });
+      toast('saved ✓'); el.remove(); showInbox();
+    } catch (e) { toast(errText(e)); }
+  };
+  $('#out', el).onclick = async () => { await rpc('logout', { p_token: token() }).catch(() => {}); setToken(null); go('/'); };
+  $('#delacc', el).onclick = async () => {
+    const pw = prompt('type your password to delete your account and all messages forever');
+    if (!pw) return;
+    try { await rpc('delete_account', { p_token: token(), p_password: pw }); setToken(null); toast('account deleted'); go('/'); }
+    catch (e) { toast(errText(e)); }
+  };
+}
+
+route();
+</script>
+</body>
+</html>
