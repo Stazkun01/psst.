@@ -102,7 +102,7 @@ language plpgsql security definer set search_path = public, extensions as $$
 declare u text := lower(trim(p_username)); ip text := public._ip_hash(); new_id uuid;
 begin
   if u !~ '^[a-z0-9_.]{3,20}$' then raise exception 'bad_username'; end if;
-  if u = any(array['inbox','login','signup','settings','app','admin','api','about','help','privacy','terms','psst','index.html','favicon.svg']) then raise exception 'reserved'; end if;
+  if u = any(array['inbox','login','signup','settings','app','admin','api','about','help','privacy','terms','psst','index.html','favicon.svg','icon.svg','og.jpg','og.png','robots.txt','manifest.webmanifest','sitemap.xml']) then raise exception 'reserved'; end if;
   if length(coalesce(p_password,'')) < 6 then raise exception 'short_password'; end if;
   if (select count(*) from public.attempts where kind='signup' and ip_hash=ip and created_at > now() - interval '1 hour') >= 5 then
     raise exception 'slow_down'; end if;

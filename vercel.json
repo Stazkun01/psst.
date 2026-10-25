@@ -1,3 +1,11 @@
 {
-  "rewrites": [{ "source": "/((?!favicon\\.svg$).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!(?:icon\\.svg|icon-192\\.png|icon-512\\.png|icon-maskable\\.png|apple-touch-icon\\.png|og\\.jpg|manifest\\.webmanifest|robots\\.txt)$).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    { "source": "/manifest.webmanifest", "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }] }
+  ]
 }

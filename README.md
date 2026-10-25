@@ -11,6 +11,8 @@ Anonymous messages for your Instagram and Snapchat stories. Like NGL, but **free
 - Private inbox only you can open
 - Reply and turn any message into a 1080×1920 story image, shared straight to Instagram or Snapchat on mobile
 - Safety: built-in filter for the worst harassment, your own blocked words, block sender, pause inbox, rate limits
+- One-tap story sharing like NGL: a ready-made story pic for Instagram (your link is auto-copied for the link sticker) and Snapchat sharing with your link attached
+- Installable: add it to your home screen and it opens full-screen like a real app
 - No fake messages, no "pay to see who sent it", no tracking or analytics
 
 ## How it works

@@ -3,12 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>psst 🤫 anonymous messages</title>
-<meta name="description" content="send me anonymous messages 🤫 no account needed.">
+<title>psst — send me anonymous messages 🤫</title>
+<meta name="description" content="Free anonymous messages for your Instagram and Snapchat stories. Get your link, post it on your story and see what people really think. No bots, no paywall, open source.">
+<meta name="keywords" content="anonymous messages, anonymous questions, ngl alternative, instagram story questions, snapchat anonymous, q&amp;a link, free ngl">
+<meta name="application-name" content="psst">
+<meta name="theme-color" content="#7c5cff">
+<meta name="color-scheme" content="light">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="index,follow">
+
+<!-- home screen app -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="psst">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+
+<!-- link previews (instagram dms, snapchat, whatsapp, imessage, x) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="psst">
 <meta property="og:title" content="psst 🤫 send me anonymous messages">
-<meta property="og:description" content="totally anonymous. no account needed.">
-<meta name="theme-color" content="#8b5cf6">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:description" content="totally anonymous. no account needed to send.">
+<meta property="og:image" content="https://psst-ruby.vercel.app/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="psst logo: send me anonymous messages">
+<meta property="og:url" content="https://psst-ruby.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="psst 🤫 send me anonymous messages">
+<meta name="twitter:description" content="totally anonymous. no account needed to send.">
+<meta name="twitter:image" content="https://psst-ruby.vercel.app/og.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"psst","url":"https://psst-ruby.vercel.app/","applicationCategory":"SocialNetworkingApplication","operatingSystem":"Any","description":"Free, open-source anonymous messages for your Instagram and Snapchat stories.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -23,7 +51,7 @@ html,body{min-height:100%}
 body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color:var(--ink);background:#8b5cf6;min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0;background:var(--g);z-index:-1}
 button{font:inherit;cursor:pointer;color:inherit}
-.wrap{max-width:440px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:16px}
+.wrap{max-width:440px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
 .center{min-height:100vh;min-height:100dvh;justify-content:center;text-align:center}
 .logo{font-weight:900;font-size:68px;color:#fff;letter-spacing:-3px;line-height:1}
 .logo span{color:var(--yellow)}
@@ -70,10 +98,14 @@ h1{color:#fff;font-size:44px;font-weight:900;letter-spacing:-1px}
 .sub{color:#fff;font-size:18px;font-weight:600;opacity:.95}
 
 /* inbox */
-.top{display:flex;justify-content:space-between;align-items:center;max-width:440px;margin:0 auto;padding:18px 16px 0}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:440px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 0}
 .icon{border:0;background:rgba(255,255,255,.22);width:46px;height:46px;border-radius:50%;font-size:20px;color:#fff}
 .small{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 .link{font-size:19px;font-weight:800;margin:6px 0 14px;word-break:break-all}
+.share-ig{background:linear-gradient(90deg,#ff4fa3,#9b4dff 55%,#4f6bff);margin-top:4px}
+.share-snap{background:#fffc00;color:#14121f;margin-top:10px}
+.mini{display:flex;justify-content:center;gap:18px;margin-top:12px}
+.mini button{border:0;background:none;font-weight:700;font-size:14px;color:var(--muted);text-decoration:underline;padding:6px}
 .howto{margin-top:14px}
 .howto summary{cursor:pointer;color:var(--muted);font-weight:700;font-size:14px}
 .howto ol{margin:10px 0 0 20px;font-size:15px;line-height:1.7}
@@ -195,6 +227,7 @@ function route() {
   clearInterval(poll); poll = null;
   document.querySelectorAll('.overlay').forEach(o => o.remove());
   const path = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, '')).toLowerCase();
+  document.title = 'psst — send me anonymous messages 🤫';
   if (!path) return token() ? showInbox() : showAuth('signup');
   if (path.includes('/')) return showMissing();
   showSend(path);
@@ -204,6 +237,7 @@ function route() {
 function showAuth(mode) {
   app.innerHTML = `
   <main class="wrap center">
+    <img src="/icon.svg" alt="psst logo" width="96" height="96" style="margin:0 auto;border-radius:22px;box-shadow:0 14px 40px rgba(40,10,90,.3)">
     <div class="logo">psst<span>.</span></div>
     <p class="tag">anonymous messages for your story 🤫</p>
     <div class="card">
@@ -244,8 +278,9 @@ async function showSend(username) {
       <a class="btn white" href="/" data-nav>get your own messages 👀</a></main>`;
     return;
   }
+  document.title = `send @${p.username} anonymous messages 🤫 · psst`;
   app.innerHTML = `
-  <main class="wrap" style="padding-top:40px">
+  <main class="wrap" style="padding-top:calc(40px + env(safe-area-inset-top))">
     <form class="card send" id="f">
       <div class="send-head">
         <div class="avatar">${esc(p.username[0])}</div>
@@ -296,27 +331,31 @@ async function showInbox() {
   if (!me) { setToken(null); return showAuth('login'); }
   const link = `${location.host}/${me.username}`;
   app.innerHTML = `
-  <header class="top"><a class="logo sm" href="/" data-nav>psst<span>.</span></a>
+  <header class="top"><a class="logo sm" href="/" data-nav style="display:flex;align-items:center;gap:10px"><img src="/icon.svg" alt="" width="38" height="38"><b style="font-weight:inherit">psst<span>.</span></b></a>
     <button class="icon" id="gear" aria-label="settings">⚙️</button></header>
-  <main class="wrap">
+  <main class="wrap" style="padding-top:16px">
     <section class="card">
       <div class="small">your link</div>
       <div class="link">${esc(link)}</div>
-      <div class="row"><button class="btn sm" id="copy">copy link</button><button class="btn sm soft" id="share">share</button></div>
-      <details class="howto"><summary>how to put it on your story</summary>
-        <ol><li>copy your link</li><li>make a story on instagram or snapchat</li><li>add the <b>link</b> sticker and paste it</li><li>post it and wait for messages 👀</li></ol>
+      <button class="btn big share-ig" id="shareIg">📸 share on instagram</button>
+      <button class="btn big share-snap snapchat-share-button" id="shareSnap" data-share-url="https://${esc(link)}">👻 share on snapchat</button>
+      <div class="mini"><button id="copy">copy link</button><button id="promo">see story pic</button></div>
+      <details class="howto"><summary>how it works</summary>
+        <ol><li><b>instagram:</b> tap share, pick instagram → story. your link is already copied</li><li>tap the sticker icon, add the <b>link</b> sticker, paste, and drop it on the 👇 spot</li><li><b>snapchat:</b> tap share and your link is attached to the snap for you</li><li>post it and wait for messages 👀</li></ol>
       </details>
       ${me.paused ? '<p class="err" style="margin:12px 0 0">your inbox is paused, nobody can send you messages</p>' : ''}
     </section>
     <div class="inbox-head"><h2>messages</h2><span id="cnt"></span></div>
     <div class="grid" id="list"></div>
   </main>`;
-  $('#copy').onclick = () => copy('https://' + link);
-  $('#share').onclick = async () => {
-    const url = 'https://' + link;
-    if (navigator.share) { try { await navigator.share({ title: 'psst', text: 'send me anonymous messages 🤫', url }); } catch {} }
-    else copy(url);
-  };
+  const url = 'https://' + link;
+  $('#copy').onclick = () => copy(url);
+  // pre-render the story pic so tapping share opens the share sheet instantly (phones block slow shares)
+  promoFile = null;
+  makePromo(me.username, me.prompt).then(b => { promoFile = new File([b], 'psst-story.png', { type: 'image/png' }); });
+  $('#shareIg').onclick = () => shareToStory(url);
+  $('#promo').onclick = () => showPromo(url);
+  setupSnap(url);
   $('#gear').onclick = showSettings;
   await loadInbox();
   poll = setInterval(() => { if (!document.hidden && !document.querySelector('.overlay')) loadInbox(); }, 15000);
@@ -379,9 +418,10 @@ function openMsg(m) {
       <div style="height:12px"></div>
       ${canShare ? '<button class="btn big" id="sh">share to story</button><div style="height:8px"></div>' : ''}
       <a class="btn ${canShare ? 'soft' : 'big'}" href="${url}" download="psst-story.png">save image</a>
-      <p class="time" style="margin-top:8px">${canShare ? 'tap share and pick instagram or snapchat' : 'save it, then post it to your story'}</p>`;
+      <p class="time" style="margin-top:8px">${canShare ? 'tap share, pick instagram → story, then add the link sticker (your link gets copied)' : 'save it, post it to your story and add your link sticker'}</p>`;
     btn.style.display = 'none';
-    if (canShare) $('#sh', el).onclick = () => navigator.share({ files: [file] }).catch(() => {});
+    const myUrl = `https://${location.host}/${me.username}`;
+    if (canShare) $('#sh', el).onclick = () => { quietCopy(myUrl); toast('link copied 🔗 add the link sticker'); navigator.share({ files: [file] }).catch(() => {}); };
   };
   $('#del', el).onclick = async () => {
     if (!confirm('delete this message?')) return;
@@ -393,6 +433,56 @@ function openMsg(m) {
     await rpc('block_sender', { p_token: token(), p_id: m.id }).catch(() => {});
     toast('blocked 🚫'); s.close();
   };
+}
+
+/* ---------- share flow ---------- */
+let promoFile = null;
+function quietCopy(text) {
+  try { return navigator.clipboard.writeText(text).then(() => true, () => false); } catch { return Promise.resolve(false); }
+}
+async function shareToStory(url) {
+  const copied = quietCopy(url); // same tap as the share, so the browser allows both
+  const file = promoFile;
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    toast('link copied 🔗 pick instagram → story');
+    try { await navigator.share({ files: [file] }); }
+    catch (e) { if (e.name !== 'AbortError') showPromo(url); }
+    return;
+  }
+  await copied;
+  showPromo(url);
+}
+async function showPromo(url) {
+  const blob = promoFile || await makePromo(me.username, me.prompt);
+  const src = URL.createObjectURL(blob);
+  const s = sheet(`
+    <h2>your story pic</h2>
+    <img class="preview" src="${src}" alt="story picture with your prompt">
+    <ol style="margin:4px 0 0 20px;line-height:1.7;font-size:15px">
+      <li>save this pic and post it to your story</li>
+      <li>add the <b>link</b> sticker and paste your link</li>
+      <li>put the sticker on the 👇 spot</li>
+    </ol>
+    <a class="btn big" href="${src}" download="psst-story.png">save pic</a>
+    <button class="btn soft" id="cp">copy link</button>`);
+  $('#cp', s.el).onclick = () => copy(url);
+}
+function setupSnap(url) {
+  const btn = $('#shareSnap');
+  btn.onclick = () => {
+    quietCopy(url);
+    // fallback if snapchat's share script didn't load: open snapchat with the link attached
+    if (!window.__snapReady) location.href = 'https://www.snapchat.com/scan?attachmentUrl=' + encodeURIComponent(url);
+  };
+  const init = () => {
+    try { snap.creativekit.initalizeShareButtons(document.getElementsByClassName('snapchat-share-button')); window.__snapReady = true; } catch {}
+  };
+  if (window.snap && window.snap.creativekit) return init();
+  window.snapKitInit = init;
+  if (!document.getElementById('snapkit-creative-kit-sdk')) {
+    const js = document.createElement('script'); js.id = 'snapkit-creative-kit-sdk';
+    js.src = 'https://sdk.snapkit.com/js/v1/create.js'; document.body.appendChild(js);
+  }
 }
 
 /* ---------- story image ---------- */
@@ -470,6 +560,52 @@ async function makeStory(prompt, body, answer, username) {
   x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '600 36px Outfit, sans-serif';
   x.fillText('send me anonymous messages 👆 link in story', W / 2, H - 125);
 
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+
+function storyBg(x, W, H) {
+  const g = x.createLinearGradient(0, 0, W * 0.55, H);
+  g.addColorStop(0, '#4f6bff'); g.addColorStop(.45, '#9b4dff'); g.addColorStop(1, '#ff4fa3');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+}
+async function makePromo(username, prompt) {
+  try { await Promise.all(['900 60px Outfit', '800 60px Outfit', '700 60px Outfit', '600 30px Outfit'].map(f => document.fonts.load(f))); } catch {}
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'); storyBg(x, W, H);
+  const CW = 880, CX = (W - CW) / 2, pad = 56;
+  x.font = '800 68px Outfit, sans-serif'; const pl = wrap(x, prompt, CW - pad * 2).slice(0, 4);
+  const top = 150, cardH = top + pl.length * 82 + pad + 70;
+  let y = 520;
+  // card
+  x.save(); x.shadowColor = 'rgba(30,5,70,.35)'; x.shadowBlur = 70; x.shadowOffsetY = 24;
+  rr(x, CX, y, CW, cardH, 60); x.fillStyle = '#fff'; x.fill(); x.restore();
+  // avatar + handle
+  const ag = x.createLinearGradient(CX + pad, y + pad, CX + pad + 96, y + pad + 96);
+  ag.addColorStop(0, '#4f6bff'); ag.addColorStop(1, '#ff4fa3');
+  x.fillStyle = ag; x.beginPath(); x.arc(CX + pad + 48, y + pad + 48, 48, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#fff'; x.font = '900 52px Outfit, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(username[0].toUpperCase(), CX + pad + 48, y + pad + 51);
+  x.textAlign = 'left'; x.fillStyle = '#6b6880'; x.font = '700 38px Outfit, sans-serif';
+  x.fillText('@' + username, CX + pad + 120, y + pad + 50);
+  // prompt
+  x.textBaseline = 'top'; x.fillStyle = '#14121f'; x.font = '800 68px Outfit, sans-serif';
+  pl.forEach((ln, i) => x.fillText(ln, CX + pad, y + top + 10 + i * 82));
+  // lock line
+  x.fillStyle = '#9b4dff'; x.font = '700 34px Outfit, sans-serif';
+  x.fillText('🔒 anonymous q&a', CX + pad, y + cardH - pad - 34);
+  y += cardH;
+  // where the link sticker goes
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.font = '84px Outfit, sans-serif';
+  x.fillText('👇 👇 👇', W / 2, y + 190);
+  const bw = 620, bh = 150, by = y + 250;
+  x.save(); x.setLineDash([22, 16]); x.lineWidth = 7; x.strokeStyle = 'rgba(255,255,255,.9)';
+  rr(x, (W - bw) / 2, by, bw, bh, 75); x.stroke(); x.restore();
+  x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '700 40px Outfit, sans-serif'; x.textBaseline = 'middle';
+  x.fillText('put your link here', W / 2, by + bh / 2);
+  // branding
+  x.textBaseline = 'alphabetic'; x.font = '900 84px Outfit, sans-serif';
+  const w1 = x.measureText('psst').width, w2 = x.measureText('.').width, bx = (W - w1 - w2) / 2;
+  x.textAlign = 'left'; x.fillStyle = '#fff'; x.fillText('psst', bx, H - 170); x.fillStyle = '#ffe14d'; x.fillText('.', bx + w1, H - 170);
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 
