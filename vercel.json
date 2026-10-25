@@ -1,4 +1,17 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "psst-ruby.vercel.app"
+        }
+      ],
+      "destination": "https://sendpsst.vercel.app/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!(?:icon\\.svg|icon-192\\.png|icon-512\\.png|icon-maskable\\.png|apple-touch-icon\\.png|og\\.jpg|manifest\\.webmanifest|robots\\.txt)$).*)",
@@ -6,6 +19,14 @@
     }
   ],
   "headers": [
-    { "source": "/manifest.webmanifest", "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }] }
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
+    }
   ]
 }
