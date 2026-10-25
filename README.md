@@ -21,7 +21,7 @@ Anonymous messages for your Instagram and Snapchat stories. Like NGL, but **free
 
 ## Guides
 
-Shareable step-by-step pictures for adding psst to your home screen: [iPhone](guides/psst-home-screen-iphone.png) · [Android](guides/psst-home-screen-android.png)
+Shareable step-by-step pictures for adding psst to your home screen: [iPhone](guides/psst-home-screen-iphone.png) · [Android](guides/psst-home-screen-android.png) · Arabic: [iPhone](guides/psst-home-screen-iphone-ar.png) · [Android](guides/psst-home-screen-android-ar.png)
 
 ## How it works
 
