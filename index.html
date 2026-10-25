@@ -140,6 +140,26 @@ hr{border:0;border-top:2px solid var(--soft);margin:6px 0}
 @keyframes fade{from{opacity:0}}
 @keyframes up{from{transform:translateY(40px);opacity:.5}}
 
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.games{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;margin:0 -2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.games::-webkit-scrollbar{display:none}
+.game{flex:none;border:3px solid transparent;border-radius:20px;padding:12px 14px;min-width:116px;color:#fff;font-weight:800;font-size:14px;text-align:left;box-shadow:0 6px 18px rgba(40,10,90,.18);line-height:1.2}
+.game .ge{display:block;font-size:26px;margin-bottom:6px}
+.game.on{border-color:#fff;box-shadow:0 0 0 3px rgba(20,18,31,.9),0 8px 22px rgba(40,10,90,.3)}
+.sect{color:#fff;font-weight:900;font-size:20px;margin-top:4px}
+.bell{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.95);border-radius:20px;padding:14px 16px;font-weight:700;font-size:15px;line-height:1.3}
+.bell .be{font-size:28px}
+.bell button{margin-left:auto;flex:none;border:0;background:var(--ink);color:#fff;font-weight:800;border-radius:999px;padding:10px 14px}
+.hints{background:var(--soft);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.hints .ht{font-weight:900;font-size:15px}
+.hints .hr{font-size:15px;font-weight:600;color:#3a3750}
+.hints .hr b{color:var(--ink)}
+.msg .tag2{font-size:12px;font-weight:800;color:var(--muted)}
+.pfp{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.pfp .avatar{width:64px;height:64px;font-size:28px}
+.pfp .btns{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pfp button{border:0;background:var(--soft);border-radius:999px;padding:8px 14px;font-weight:700}
+.pfp .rm{background:none;color:var(--red);padding:4px 6px}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-weight:700;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -161,6 +181,8 @@ const ERR = {
   paused: "they're not taking messages right now",
   no_user: "this person doesn't exist",
   bad_length: 'that\'s too long',
+  bad_image: "couldn't use that picture",
+  bad_game: 'unknown game',
 };
 const errText = e => ERR[e.message] || 'something went wrong, try again';
 
@@ -173,6 +195,59 @@ const DICE = [
   "what's the best memory we have together?", "do you think i'm a good friend?",
   "if we were stuck on an island, would we survive?", "what's one thing you'd change about me?",
 ];
+
+const GAMES = {
+  messages: { name: 'anonymous messages', emoji: '💌', prompt: 'send me anonymous messages!', c: ['#4f6bff', '#9b4dff', '#ff4fa3'] },
+  tbh:      { name: 'tbh', emoji: '👀', prompt: 'tbh, what do you really think of me?', c: ['#ff8a00', '#ff3d77', '#c41dff'] },
+  nhie:     { name: 'never have i ever', emoji: '🙈', prompt: 'never have i ever...', c: ['#00c6ff', '#0072ff', '#6a3dff'] },
+  confess:  { name: 'confessions', emoji: '🤐', prompt: 'send me a confession', c: ['#ff416c', '#ff4b2b', '#ffb347'] },
+  words:    { name: '3 words', emoji: '✍️', prompt: 'describe me in 3 words', c: ['#0bab64', '#22c58b', '#00b4db'] },
+  rate:     { name: 'rate me', emoji: '⭐', prompt: 'rate me from 1 to 10', c: ['#f7971e', '#ffb300', '#ff5e62'] },
+  shoot:    { name: 'shoot your shot', emoji: '💘', prompt: 'shoot your shot 😏', c: ['#e91e63', '#ff4f81', '#ff9a9e'] },
+  ama:      { name: 'ask me anything', emoji: '💬', prompt: 'ask me anything', c: ['#3a1c71', '#7b2ff7', '#d76d77'] },
+  flags:    { name: 'red or green flag', emoji: '🚩', prompt: 'am i a red flag or a green flag?', c: ['#ff416c', '#ff8c42', '#20bf6b'] },
+};
+const G = k => GAMES[k] || GAMES.messages;
+const grad = k => `linear-gradient(160deg,${G(k).c[0]} 0%,${G(k).c[1]} 45%,${G(k).c[2]} 100%)`;
+const setTheme = k => document.documentElement.style.setProperty('--g', grad(k));
+const GAME_DICE = {
+  nhie: ["never have i ever had a crush on you 👀", "never have i ever stalked your profile", "never have i ever lied to you", "never have i ever screenshotted your story"],
+  rate: ["10/10 no notes", "solid 8, the vibes carry", "9 but only because nobody's perfect", "11/10 stop asking"],
+  words: ["funny, loyal, chaotic", "kind, smart, iconic", "mysterious, cool, unpredictable", "sweet, loud, unforgettable"],
+  flags: ["green flag, always 💚", "red flag but in a fun way 🚩", "beige flag honestly", "greenest flag i know"],
+  shoot: ["i've liked you for a while ngl", "you're cute, that's it that's the message", "we should hang out sometime 👀"],
+  confess: ["i still think about that one time", "i was the one who...", "i've never told anyone this but"],
+};
+const avatarHtml = (p) => p.avatar ? `<img src="${p.avatar}" alt="">` : esc((p.username || '?')[0]);
+const flag = cc => cc && /^[A-Z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc].map(ch => 127397 + ch.charCodeAt(0))) : '';
+const countryName = cc => { try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(cc); } catch { return cc; } };
+
+/* sender hints: phone type + approximate city, shown to the inbox owner (and disclosed on the send page) */
+let hintsP = null;
+function senderHints() {
+  if (hintsP) return hintsP;
+  hintsP = (async () => {
+    const ua = navigator.userAgent; let device = null;
+    try {
+      if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+        const h = await navigator.userAgentData.getHighEntropyValues(['model', 'platform']);
+        if (h.model) device = h.model; else if (h.platform && !/Android/.test(ua)) device = h.platform === 'macOS' ? 'Mac' : h.platform === 'Windows' ? 'Windows PC' : h.platform;
+      }
+    } catch {}
+    if (!device) {
+      if (/iPhone/.test(ua)) device = 'iPhone';
+      else if (/iPad/.test(ua)) device = 'iPad';
+      else if (/Android/.test(ua)) { const m = ua.match(/Android [\d.]+; ([^;)]+)/); device = m && m[1].trim().length > 2 ? m[1].trim() : 'Android phone'; }
+      else if (/Macintosh/.test(ua)) device = 'Mac';
+      else if (/Windows/.test(ua)) device = 'Windows PC';
+      else device = 'computer';
+    }
+    let geo = {};
+    try { const r = await fetch('/api/geo', { cache: 'no-store' }); if (r.ok) geo = await r.json(); } catch {}
+    return { device, city: geo.city || null, country: geo.country || null };
+  })();
+  return hintsP;
+}
 
 const $ = (s, el = document) => el.querySelector(s);
 const app = $('#app');
@@ -228,6 +303,7 @@ function route() {
   document.querySelectorAll('.overlay').forEach(o => o.remove());
   const path = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, '')).toLowerCase();
   document.title = 'psst — send me anonymous messages 🤫';
+  setTheme('messages');
   if (!path) return token() ? showInbox() : showAuth('signup');
   if (path.includes('/')) return showMissing();
   showSend(path);
@@ -278,37 +354,41 @@ async function showSend(username) {
       <a class="btn white" href="/" data-nav>get your own messages 👀</a></main>`;
     return;
   }
-  document.title = `send @${p.username} anonymous messages 🤫 · psst`;
+  document.title = `${p.prompt} · @${p.username} on psst`;
+  setTheme(p.game);
+  senderHints();
   app.innerHTML = `
   <main class="wrap" style="padding-top:calc(40px + env(safe-area-inset-top))">
     <form class="card send" id="f">
       <div class="send-head">
-        <div class="avatar">${esc(p.username[0])}</div>
+        <div class="avatar">${avatarHtml(p)}</div>
         <div><div class="handle">@${esc(p.username)}</div><div class="prompt">${esc(p.prompt)}</div></div>
       </div>
       <div class="send-body">
-        <textarea id="t" maxlength="300" placeholder="send me anonymous messages..." aria-label="your message"></textarea>
+        <textarea id="t" maxlength="300" placeholder="type here..." aria-label="your message"></textarea>
         <span class="count" id="c"></span>
         <button type="button" class="dice" id="dice" aria-label="random question">🎲</button>
       </div>
     </form>
-    <div class="lock">🔒 anonymous q&amp;a</div>
+    <div class="lock">🔒 anonymous q&amp;a<br><span style="font-weight:600;font-size:13px;opacity:.9">your name stays hidden. they only see a hint: your phone type and city</span></div>
     <button class="btn big" form="f" id="go" disabled>send!</button>
     <a class="ghost" href="/" data-nav>👀 get your own messages</a>
   </main>`;
   const t = $('#t'), go_ = $('#go'), c = $('#c');
   const upd = () => { go_.disabled = !t.value.trim(); c.textContent = t.value.length > 240 ? (300 - t.value.length) + ' left' : ''; };
   t.oninput = upd;
-  $('#dice').onclick = () => { t.value = DICE[Math.floor(Math.random() * DICE.length)]; upd(); t.focus(); };
+  const dice = GAME_DICE[p.game] || DICE;
+  $('#dice').onclick = () => { t.value = dice[Math.floor(Math.random() * dice.length)]; upd(); t.focus(); };
   $('#f').onsubmit = async e => {
     e.preventDefault();
     if (!t.value.trim()) return;
     go_.disabled = true; go_.textContent = 'sending...';
     try {
-      await rpc('send_message', { p_username: p.username, p_body: t.value });
+      const h = await Promise.race([senderHints(), new Promise(r => setTimeout(() => r({}), 2500))]);
+      await rpc('send_message', { p_username: p.username, p_body: t.value, p_device: h.device || null, p_city: h.city || null, p_country: h.country || null });
       app.innerHTML = `<main class="wrap center">
         <div class="big-emoji">🤫</div><h1>sent!</h1>
-        <p class="sub">@${esc(p.username)} will never know it was you</p>
+        <p class="sub">your name stays hidden 🤫<br><span style="font-size:15px;opacity:.85">@${esc(p.username)} only sees your phone type and city as a hint</span></p>
         <div style="height:12px"></div>
         <button class="btn white big" id="again">send another</button>
         <a class="btn big" href="/" data-nav>get your own messages 👀</a></main>`;
@@ -335,7 +415,7 @@ async function showInbox() {
     <button class="icon" id="gear" aria-label="settings">⚙️</button></header>
   <main class="wrap" style="padding-top:16px">
     <section class="card">
-      <div class="small">your link</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><div class="avatar" style="width:44px;height:44px;font-size:20px">${avatarHtml(me)}</div><div><div class="small">your link</div></div></div>
       <div class="link">${esc(link)}</div>
       <button class="btn big share-ig" id="shareIg">📸 share on instagram</button>
       <button class="btn big share-snap snapchat-share-button" id="shareSnap" data-share-url="https://${esc(link)}">👻 share on snapchat</button>
@@ -345,14 +425,24 @@ async function showInbox() {
       </details>
       ${me.paused ? '<p class="err" style="margin:12px 0 0">your inbox is paused, nobody can send you messages</p>' : ''}
     </section>
+    <div id="bell"></div>
+    <div class="sect">pick a game</div>
+    <div class="games" id="games">${Object.entries(GAMES).map(([k, g]) => `<button class="game ${k === me.game ? 'on' : ''}" data-g="${k}" style="background:${grad(k)}"><span class="ge">${g.emoji}</span>${esc(g.name)}</button>`).join('')}</div>
     <div class="inbox-head"><h2>messages</h2><span id="cnt"></span></div>
     <div class="grid" id="list"></div>
   </main>`;
   const url = 'https://' + link;
+  setTheme(me.game);
+  app.querySelectorAll('.game').forEach(b => b.onclick = async () => {
+    const k = b.dataset.g; if (k === me.game) return;
+    try { await rpc('set_game', { p_token: token(), p_game: k, p_prompt: G(k).prompt }); toast(`${G(k).emoji} ${G(k).name} is on. share it to your story!`); showInbox(); }
+    catch (e) { toast(errText(e)); }
+  });
+  renderBell();
   $('#copy').onclick = () => copy(url);
   // pre-render the story pic so tapping share opens the share sheet instantly (phones block slow shares)
   promoFile = null;
-  makePromo(me.username, me.prompt).then(b => { promoFile = new File([b], 'psst-story.png', { type: 'image/png' }); });
+  makePromo(me).then(b => { promoFile = new File([b], 'psst-story.png', { type: 'image/png' }); });
   $('#shareIg').onclick = () => shareToStory(url);
   $('#promo').onclick = () => showPromo(url);
   setupSnap(url);
@@ -375,13 +465,14 @@ async function loadInbox() {
   const list = $('#list'); if (!list) return;
   const unread = msgs.filter(m => !m.seen).length;
   $('#cnt').textContent = unread ? `${unread} new` : '';
+  try { if (navigator.setAppBadge) unread ? navigator.setAppBadge(unread) : navigator.clearAppBadge(); } catch {}
   if (!msgs.length) {
     list.innerHTML = `<div class="empty"><b>📭</b>no messages yet.<br>post your link on your story and they'll show up here.</div>`;
     return;
   }
   list.innerHTML = msgs.map((m, i) => m.seen
-    ? `<button class="msg" data-i="${i}"><span class="t">${esc(m.body)}</span><span class="meta">${ago(m.created_at)}${m.answer ? ' · replied ✓' : ''}</span></button>`
-    : `<button class="msg new" data-i="${i}"><span class="e">💌</span><span class="t">new message!</span><span class="meta" style="color:#7a6a00">${ago(m.created_at)}</span></button>`
+    ? `<button class="msg" data-i="${i}"><span class="tag2">${G(m.game).emoji} ${esc(G(m.game).name)}</span><span class="t">${esc(m.body)}</span><span class="meta">${ago(m.created_at)}${m.answer ? ' · replied ✓' : ''}</span></button>`
+    : `<button class="msg new" data-i="${i}" style="background:${grad(m.game)};color:#fff"><span class="e">💌</span><span class="t">new message!</span><span class="meta" style="color:rgba(255,255,255,.9)">${ago(m.created_at)}</span></button>`
   ).join('');
   list.querySelectorAll('.msg').forEach(b => b.onclick = () => openMsg(msgs[+b.dataset.i]));
 }
@@ -398,8 +489,8 @@ function sheet(html) {
 function openMsg(m) {
   if (!m.seen) { m.seen = true; rpc('mark_seen', { p_token: token(), p_id: m.id }).catch(() => {}); }
   const s = sheet(`
-    <div class="qcard"><div class="qhead">${esc(me.prompt)}</div><div class="qbody">${esc(m.body)}</div></div>
-    <div class="time">${ago(m.created_at)}</div>
+    <div class="qcard"><div class="qhead" style="background:${grad(m.game)}">${esc(m.prompt || me.prompt)}</div><div class="qbody">${esc(m.body)}</div></div>
+    ${hintsHtml(m)}
     <label style="margin:0">your reply (optional, goes on the image)<textarea id="ans" rows="3" maxlength="500" placeholder="type your answer...">${esc(m.answer || '')}</textarea></label>
     <button class="btn big" id="mk">📲 make story image</button>
     <div id="pv"></div>
@@ -410,7 +501,7 @@ function openMsg(m) {
     const btn = $('#mk', el); btn.disabled = true; btn.textContent = 'making it...';
     const answer = $('#ans', el).value.trim();
     try { await rpc('answer_message', { p_token: token(), p_id: m.id, p_answer: answer }); m.answer = answer; } catch {}
-    const blob = await makeStory(me.prompt, m.body, answer, me.username);
+    const blob = await makeStory(m.prompt || me.prompt, m.body, answer, me.username, m.game);
     const file = new File([blob], 'psst-story.png', { type: 'image/png' });
     const url = URL.createObjectURL(blob);
     const canShare = navigator.canShare && navigator.canShare({ files: [file] });
@@ -435,6 +526,68 @@ function openMsg(m) {
   };
 }
 
+function hintsHtml(m) {
+  const t = new Date(m.created_at);
+  const when = t.toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+  if (!m.device && !m.city && !m.country) return `<div class="hints"><div class="ht">👀 hints</div><div class="hr">🕐 sent <b>${esc(when)}</b> (${ago(m.created_at)})</div><div class="hr" style="color:var(--muted)">no device or location hint for this one</div></div>`;
+  const place = [m.city, m.country ? countryName(m.country) : null].filter(Boolean).join(', ');
+  return `<div class="hints"><div class="ht">👀 hints</div>
+    ${m.device ? `<div class="hr">📱 sent from <b>${esc(m.device)}</b></div>` : ''}
+    ${place ? `<div class="hr">📍 near <b>${esc(place)}</b> ${flag(m.country)}</div>` : ''}
+    <div class="hr">🕐 sent <b>${esc(when)}</b> (${ago(m.created_at)})</div></div>`;
+}
+
+/* ---------- notifications ---------- */
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const pushOK = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+function b64u(s) { const p = '='.repeat((4 - s.length % 4) % 4); const r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...r].map(c => c.charCodeAt(0))); }
+async function renderBell() {
+  const el = $('#bell'); if (!el) return;
+  let html = '';
+  if (!pushOK()) {
+    if (isIOS && !isStandalone()) html = `<div class="bell"><span class="be">🔔</span><span>want notifications? tap <b>share</b> → <b>add to home screen</b>, then open psst from there</span></div>`;
+  } else if (Notification.permission === 'denied') {
+    html = `<div class="bell"><span class="be">🔕</span><span>notifications are blocked. turn them on for psst in your phone settings</span></div>`;
+  } else {
+    let sub = null;
+    try { const reg = await navigator.serviceWorker.ready; sub = await reg.pushManager.getSubscription(); } catch {}
+    if (!sub || Notification.permission !== 'granted') html = `<div class="bell"><span class="be">🔔</span><span>get notified when someone sends you a message</span><button id="pushOn">turn on</button></div>`;
+    else rpc('save_push', { p_token: token(), p_sub: sub.toJSON() }).catch(() => {});
+  }
+  el.innerHTML = html;
+  const b = $('#pushOn'); if (b) b.onclick = enablePush;
+}
+async function enablePush() {
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { toast('notifications not allowed'); return renderBell(); }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(me.vapid) });
+    await rpc('save_push', { p_token: token(), p_sub: sub.toJSON() });
+    toast('notifications on 🔔'); renderBell();
+  } catch (e) { toast("couldn't turn on notifications on this device"); }
+}
+
+/* ---------- profile pic ---------- */
+function pickAvatar() {
+  return new Promise(resolve => {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+    i.onchange = async () => {
+      const f = i.files && i.files[0]; if (!f) return resolve(null);
+      try {
+        const img = await new Promise((ok, bad) => { const im = new Image(); im.onload = () => ok(im); im.onerror = bad; im.src = URL.createObjectURL(f); });
+        const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
+        const k = Math.max(S / img.width, S / img.height), w = img.width * k, h = img.height * k;
+        c.getContext('2d').drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      } catch { resolve(null); }
+    };
+    i.click();
+  });
+}
+
 /* ---------- share flow ---------- */
 let promoFile = null;
 function quietCopy(text) {
@@ -453,7 +606,7 @@ async function shareToStory(url) {
   showPromo(url);
 }
 async function showPromo(url) {
-  const blob = promoFile || await makePromo(me.username, me.prompt);
+  const blob = promoFile || await makePromo(me);
   const src = URL.createObjectURL(blob);
   const s = sheet(`
     <h2>your story pic</h2>
@@ -509,13 +662,10 @@ function rr(ctx, x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-async function makeStory(prompt, body, answer, username) {
+async function makeStory(prompt, body, answer, username, game) {
   try { await Promise.all(['900 60px Outfit', '800 60px Outfit', '700 60px Outfit', '600 30px Outfit'].map(f => document.fonts.load(f))); } catch {}
   const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const x = c.getContext('2d');
-  const g = x.createLinearGradient(0, 0, W * 0.55, H);
-  g.addColorStop(0, '#4f6bff'); g.addColorStop(.45, '#9b4dff'); g.addColorStop(1, '#ff4fa3');
-  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const x = c.getContext('2d'); storyBg(x, W, H, game);
 
   const CW = 900, CX = (W - CW) / 2;
   let L;
@@ -536,8 +686,9 @@ async function makeStory(prompt, body, answer, username) {
   x.save(); x.shadowColor = 'rgba(30,5,70,.35)'; x.shadowBlur = 60; x.shadowOffsetY = 20;
   rr(x, CX, y, CW, L.headH + L.bodyH, 54); x.fillStyle = '#14121f'; x.fill(); x.restore();
   x.save(); rr(x, CX, y, CW, L.headH + L.bodyH, 54); x.clip();
-  x.fillStyle = '#fff'; x.fillRect(CX, y, CW, L.headH);
-  x.fillStyle = '#14121f'; x.textBaseline = 'top'; x.font = `800 ${L.hs}px Outfit, sans-serif`;
+  const hg = x.createLinearGradient(CX, y, CX + CW, y + L.headH); hg.addColorStop(0, G(game).c[0]); hg.addColorStop(1, G(game).c[2]);
+  x.fillStyle = hg; x.fillRect(CX, y, CW, L.headH);
+  x.fillStyle = '#fff'; x.textBaseline = 'top'; x.font = `800 ${L.hs}px Outfit, sans-serif`;
   L.pl.forEach((ln, i) => x.fillText(ln, CX + L.pad, y + L.pad * 0.7 + i * L.hs * 1.25));
   x.fillStyle = '#fff'; x.font = `800 ${L.bs}px Outfit, sans-serif`;
   L.bl.forEach((ln, i) => x.fillText(ln, CX + L.pad, y + L.headH + L.pad + i * L.bs * 1.25));
@@ -564,15 +715,18 @@ async function makeStory(prompt, body, answer, username) {
   return new Promise(r => c.toBlob(r, 'image/png'));
 }
 
-function storyBg(x, W, H) {
-  const g = x.createLinearGradient(0, 0, W * 0.55, H);
-  g.addColorStop(0, '#4f6bff'); g.addColorStop(.45, '#9b4dff'); g.addColorStop(1, '#ff4fa3');
+function storyBg(x, W, H, game) {
+  const cs = G(game).c, g = x.createLinearGradient(0, 0, W * 0.55, H);
+  g.addColorStop(0, cs[0]); g.addColorStop(.45, cs[1]); g.addColorStop(1, cs[2]);
   x.fillStyle = g; x.fillRect(0, 0, W, H);
 }
-async function makePromo(username, prompt) {
+async function makePromo(p) {
+  const username = p.username, prompt = p.prompt, game = p.game;
+  let av = null;
+  if (p.avatar) { try { av = await new Promise((ok, bad) => { const im = new Image(); im.onload = () => ok(im); im.onerror = bad; im.src = p.avatar; }); } catch {} }
   try { await Promise.all(['900 60px Outfit', '800 60px Outfit', '700 60px Outfit', '600 30px Outfit'].map(f => document.fonts.load(f))); } catch {}
   const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const x = c.getContext('2d'); storyBg(x, W, H);
+  const x = c.getContext('2d'); storyBg(x, W, H, game);
   const CW = 880, CX = (W - CW) / 2, pad = 56;
   x.font = '800 68px Outfit, sans-serif'; const pl = wrap(x, prompt, CW - pad * 2).slice(0, 4);
   const top = 150, cardH = top + pl.length * 82 + pad + 70;
@@ -582,18 +736,20 @@ async function makePromo(username, prompt) {
   rr(x, CX, y, CW, cardH, 60); x.fillStyle = '#fff'; x.fill(); x.restore();
   // avatar + handle
   const ag = x.createLinearGradient(CX + pad, y + pad, CX + pad + 96, y + pad + 96);
-  ag.addColorStop(0, '#4f6bff'); ag.addColorStop(1, '#ff4fa3');
+  ag.addColorStop(0, G(game).c[0]); ag.addColorStop(1, G(game).c[2]);
   x.fillStyle = ag; x.beginPath(); x.arc(CX + pad + 48, y + pad + 48, 48, 0, Math.PI * 2); x.fill();
-  x.fillStyle = '#fff'; x.font = '900 52px Outfit, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.fillText(username[0].toUpperCase(), CX + pad + 48, y + pad + 51);
+  if (av) { x.save(); x.beginPath(); x.arc(CX + pad + 48, y + pad + 48, 48, 0, Math.PI * 2); x.clip(); x.drawImage(av, CX + pad, y + pad, 96, 96); x.restore(); }
+  else { x.fillStyle = '#fff'; x.font = '900 52px Outfit, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(username[0].toUpperCase(), CX + pad + 48, y + pad + 51); }
+  x.textBaseline = 'middle';
   x.textAlign = 'left'; x.fillStyle = '#6b6880'; x.font = '700 38px Outfit, sans-serif';
   x.fillText('@' + username, CX + pad + 120, y + pad + 50);
   // prompt
   x.textBaseline = 'top'; x.fillStyle = '#14121f'; x.font = '800 68px Outfit, sans-serif';
   pl.forEach((ln, i) => x.fillText(ln, CX + pad, y + top + 10 + i * 82));
   // lock line
-  x.fillStyle = '#9b4dff'; x.font = '700 34px Outfit, sans-serif';
-  x.fillText('🔒 anonymous q&a', CX + pad, y + cardH - pad - 34);
+  x.fillStyle = G(game).c[1]; x.font = '700 34px Outfit, sans-serif';
+  x.fillText(`${G(game).emoji} ${G(game).name} · 🔒 anonymous`, CX + pad, y + cardH - pad - 34);
   y += cardH;
   // where the link sticker goes
   x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.font = '84px Outfit, sans-serif';
@@ -614,6 +770,7 @@ async function makePromo(username, prompt) {
 function showSettings() {
   const s = sheet(`
     <h2>settings</h2>
+    <div class="pfp"><div class="avatar" id="pfpv">${avatarHtml(me)}</div><div class="btns"><button id="pfpc">📷 change profile pic</button>${me.avatar ? '<button class="rm" id="pfpr">remove</button>' : ''}</div></div>
     <label>your prompt<input id="sp" maxlength="80" value="${esc(me.prompt)}"></label>
     <label class="toggle"><input type="checkbox" id="spause" ${me.paused ? 'checked' : ''}> pause new messages</label>
     <label>hide messages containing these words (comma separated)<textarea id="sf" rows="2" placeholder="e.g. ugly, loser">${esc((me.filter_words || []).join(', '))}</textarea></label>
@@ -622,6 +779,12 @@ function showSettings() {
     <button class="btn soft" id="out">log out</button>
     <button class="linkbtn" id="delacc">delete my account</button>`);
   const el = s.el;
+  $('#pfpc', el).onclick = async () => {
+    const d = await pickAvatar(); if (!d) return;
+    try { await rpc('set_avatar', { p_token: token(), p_avatar: d }); me.avatar = d; toast('profile pic updated ✨'); el.remove(); showInbox(); }
+    catch (e) { toast("couldn't use that picture"); }
+  };
+  const rm = $('#pfpr', el); if (rm) rm.onclick = async () => { await rpc('set_avatar', { p_token: token(), p_avatar: null }).catch(() => {}); toast('removed'); el.remove(); showInbox(); };
   $('#save', el).onclick = async () => {
     const words = $('#sf', el).value.split(',').map(w => w.trim().toLowerCase()).filter(Boolean).slice(0, 100);
     try {
