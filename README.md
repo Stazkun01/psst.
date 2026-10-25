@@ -2,7 +2,7 @@
 
 Anonymous messages for your Instagram and Snapchat stories. Like NGL, but **free, open source, no paywall and no bot messages**.
 
-**Live:** https://psst-ruby.vercel.app
+**Live:** https://sendpsst.vercel.app
 
 ## Features
 
